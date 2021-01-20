@@ -1550,6 +1550,20 @@ WEAVE_ERROR NotificationEngine::BuildSingleNotifyRequest(SubscriptionHandler * a
     // Fill in the DataList.  Allocation may take place
     subClean = true;
 
+#if WEAVE_CONFIG_ENABLE_OFFLOAD_EVENTS_FIRST
+
+#if WEAVE_CONFIG_EVENT_LOGGING_WDM_OFFLOAD
+    // Fill in the EventList.  Allocation may take place
+    err = BuildSingleNotifyRequestEventList(aSubHandler, notifyRequest, subClean, neWriteInProgress);
+    SuccessOrExit(err);
+#endif
+
+    aIsSubscriptionClean &= subClean;
+    subClean = true;
+
+    err = BuildSingleNotifyRequestDataList(aSubHandler, notifyRequest, subClean, neWriteInProgress);
+    SuccessOrExit(err);
+#else
     err = BuildSingleNotifyRequestDataList(aSubHandler, notifyRequest, subClean, neWriteInProgress);
     SuccessOrExit(err);
 
@@ -1561,6 +1575,7 @@ WEAVE_ERROR NotificationEngine::BuildSingleNotifyRequest(SubscriptionHandler * a
     err = BuildSingleNotifyRequestEventList(aSubHandler, notifyRequest, subClean, neWriteInProgress);
     SuccessOrExit(err);
 #endif
+#endif // WEAVE_CONFIG_ENABLE_OFFLOAD_EVENTS_FIRST
 
     aIsSubscriptionClean &= subClean;
 
